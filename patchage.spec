@@ -1,34 +1,30 @@
 Summary:	Modular patch bay for audio and MIDI systems based on JACK and ALSA
 Summary(pl.UTF-8):	Modularny panel połączeniowy dla systemów dźwiękowych i MIDI opartych na JACK-u i ALSA-ie
 Name:		patchage
-Version:	0.5.0
+Version:	1.0.0
 Release:	1
-License:	GPL v2+
-Group:		Libraries
+License:	GPL v3+
+Group:		X11/Applications/Sound
 Source0:	http://download.drobilla.net/%{name}-%{version}.tar.bz2
-# Source0-md5:	3f1c297c8c6b998563d1a2fbc215cf85
+# Source0-md5:	d16a3fc045faff7fd70f3b4769b65698
 URL:		http://drobilla.net/software/patchage/
 BuildRequires:	alsa-lib-devel >= 1.0
 BuildRequires:	boost-devel
 BuildRequires:	dbus-devel
 BuildRequires:	dbus-glib-devel
-BuildRequires:	flowcanvas-devel >= 0.7.1
+BuildRequires:	ganv-devel >= 1.4.0
 BuildRequires:	glib2-devel >= 1:2.14.0
-BuildRequires:	gtkmm-devel >= 2.11.12
-BuildRequires:	jack-audio-connection-kit-devel >= 0.107.0
-BuildRequires:	libglademm-devel >= 2.6.0
-BuildRequires:	libgnomecanvasmm-devel >= 2.6
+BuildRequires:	glibmm-devel >= 2.14.0
+BuildRequires:	gtkmm-devel >= 2.12.0
+BuildRequires:	jack-audio-connection-kit-devel >= 0.120.0
 BuildRequires:	libstdc++-devel
 BuildRequires:	pkgconfig
 BuildRequires:	python
-BuildRequires:	raul-devel >= 0.5.1
-Requires:	flowcanvas >= 0.7.1
+Requires:	ganv >= 1.4.0
 Requires:	glib2 >= 1:2.14.0
-Requires:	gtkmm >= 2.11.12
-Requires:	jack-audio-connection-kit-libs >= 0.107.0
-Requires:	libglademm >= 2.6.0
-Requires:	libgnomecanvasmm >= 2.6.0
-Requires:	raul >= 0.5.1
+Requires:	glibmm >= 2.14.0
+Requires:	gtkmm >= 2.12.0
+Requires:	jack-audio-connection-kit-libs >= 0.120.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -66,7 +62,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS ChangeLog README
+%doc AUTHORS NEWS README
 %attr(755,root,root) %{_bindir}/patchage
 %{_datadir}/patchage
 %{_desktopdir}/patchage.desktop
