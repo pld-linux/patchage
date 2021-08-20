@@ -2,7 +2,7 @@ Summary:	Modular patch bay for audio and MIDI systems based on JACK and ALSA
 Summary(pl.UTF-8):	Modularny panel połączeniowy dla systemów dźwiękowych i MIDI opartych na JACK-u i ALSA-ie
 Name:		patchage
 Version:	1.0.4
-Release:	1
+Release:	2
 License:	GPL v3+
 Group:		X11/Applications/Sound
 Source0:	http://download.drobilla.net/%{name}-%{version}.tar.bz2
