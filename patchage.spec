@@ -1,12 +1,13 @@
 Summary:	Modular patch bay for audio and MIDI systems based on JACK and ALSA
 Summary(pl.UTF-8):	Modularny panel połączeniowy dla systemów dźwiękowych i MIDI opartych na JACK-u i ALSA-ie
 Name:		patchage
-Version:	1.0.4
-Release:	2
+Version:	1.0.8
+Release:	1
 License:	GPL v3+
 Group:		X11/Applications/Sound
-Source0:	http://download.drobilla.net/%{name}-%{version}.tar.bz2
-# Source0-md5:	d6a9183bb9de4772613b34c182965cd0
+Source0:	http://download.drobilla.net/%{name}-%{version}.tar.xz
+# Source0-md5:	05e444dbb0a81a72c2bc09d09881f575
+Patch0:		%{name}-fmt.patch
 URL:		http://drobilla.net/software/patchage/
 BuildRequires:	alsa-lib-devel >= 1.0
 BuildRequires:	boost-devel
@@ -17,14 +18,20 @@ BuildRequires:	glib2-devel >= 1:2.14.0
 BuildRequires:	glibmm-devel >= 2.14.0
 BuildRequires:	gtkmm-devel >= 2.12.0
 BuildRequires:	jack-audio-connection-kit-devel >= 0.120.0
-BuildRequires:	libstdc++-devel
+BuildRequires:	libfmt-devel >= 7.1.3
+BuildRequires:	libstdc++-devel >= 6:7
+BuildRequires:	meson >= 0.56.0
+BuildRequires:	ninja >= 1.5
 BuildRequires:	pkgconfig
-BuildRequires:	python >= 2
+BuildRequires:	rpmbuild(macros) >= 1.736
+BuildRequires:	tar >= 1:1.22
+BuildRequires:	xz
 Requires:	ganv >= 1.5.2
 Requires:	glib2 >= 1:2.14.0
 Requires:	glibmm >= 2.14.0
 Requires:	gtkmm >= 2.12.0
 Requires:	jack-audio-connection-kit-libs >= 0.120.0
+Requires:	libfmt >= 7.1.3
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -37,22 +44,17 @@ MIDI opartych na JACK-u i ALSA-ie.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
-CXX="%{__cxx}" \
-CXXFLAGS="%{rpmcxxflags}" \
-./waf configure \
-	--prefix=%{_prefix} \
-	--libdir=%{_libdir} \
-	--strict
+%meson build
 
-./waf -v
+%ninja_build -C build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-./waf install \
-	--destdir=$RPM_BUILD_ROOT
+%ninja_install -C build
 
 %clean
 rm -rf $RPM_BUILD_ROOT

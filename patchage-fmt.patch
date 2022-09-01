@@ -1,0 +1,137 @@
+--- patchage-1.0.8/src/Canvas.cpp.orig	2022-08-14 00:15:32.000000000 +0200
++++ patchage-1.0.8/src/Canvas.cpp	2022-09-01 21:47:16.557079433 +0200
+@@ -76,7 +76,7 @@ Canvas::create_port(Configuration&  conf
+     const auto client_info = metadata.client(client_id);
+     if (!client_info) {
+       _log.error(fmt::format(
+-        R"(Unable to add port "{}", client "{}" is unknown)", id, client_id));
++        R"(Unable to add port "{}", client "{}" is unknown)", fmt::streamed(id), fmt::streamed(client_id)));
+ 
+       return nullptr;
+     }
+--- patchage-1.0.8/src/event_to_string.cpp.orig	2022-08-14 00:15:32.000000000 +0200
++++ patchage-1.0.8/src/event_to_string.cpp	2022-09-01 21:52:35.848683015 +0200
+@@ -57,12 +57,12 @@ struct EventPrinter {
+ 
+   std::string operator()(const event::ClientCreated& event)
+   {
+-    return fmt::format(R"(Add client "{}" ("{}"))", event.id, event.info.label);
++    return fmt::format(R"(Add client "{}" ("{}"))", fmt::streamed(event.id), event.info.label);
+   }
+ 
+   std::string operator()(const event::ClientDestroyed& event)
+   {
+-    return fmt::format(R"(Remove client "{}")", event.id);
++    return fmt::format(R"(Remove client "{}")", fmt::streamed(event.id));
+   }
+ 
+   std::string operator()(const PortType port_type)
+@@ -103,7 +103,7 @@ struct EventPrinter {
+                               event.info.is_terminal ? " terminal" : "",
+                               (*this)(event.info.type),
+                               (*this)(event.info.direction),
+-                              event.id,
++                              fmt::streamed(event.id),
+                               event.info.label);
+ 
+     if (event.info.order) {
+@@ -115,17 +115,17 @@ struct EventPrinter {
+ 
+   std::string operator()(const event::PortDestroyed& event)
+   {
+-    return fmt::format(R"("Remove port "{}")", event.id);
++    return fmt::format(R"("Remove port "{}")", fmt::streamed(event.id));
+   }
+ 
+   std::string operator()(const event::PortsConnected& event)
+   {
+-    return fmt::format(R"(Connect "{}" to "{}")", event.tail, event.head);
++    return fmt::format(R"(Connect "{}" to "{}")", fmt::streamed(event.tail), fmt::streamed(event.head));
+   }
+ 
+   std::string operator()(const event::PortsDisconnected& event)
+   {
+-    return fmt::format(R"(Disconnect "{}" from "{}")", event.tail, event.head);
++    return fmt::format(R"(Disconnect "{}" from "{}")", fmt::streamed(event.tail), fmt::streamed(event.head));
+   }
+ };
+ 
+--- patchage-1.0.8/src/AlsaDriver.cpp.orig	2022-08-14 00:15:32.000000000 +0200
++++ patchage-1.0.8/src/AlsaDriver.cpp	2022-09-01 21:54:12.138161370 +0200
+@@ -350,7 +350,7 @@ AlsaDriver::connect(const PortID& tail_i
+ 
+   if (!result) {
+     _log.error(
+-      fmt::format("[ALSA] Failed to connect {} => {}", tail_id, head_id));
++      fmt::format("[ALSA] Failed to connect {} => {}", fmt::streamed(tail_id), fmt::streamed(head_id)));
+   }
+ 
+   return (!result);
+@@ -385,8 +385,8 @@ AlsaDriver::disconnect(const PortID& tai
+   int ret = snd_seq_unsubscribe_port(_seq, subs);
+   if (ret < 0) {
+     _log.error(fmt::format("[ALSA] Failed to disconnect {} => {} ({})",
+-                           tail_id,
+-                           head_id,
++                           fmt::streamed(tail_id),
++                           fmt::streamed(head_id),
+                            snd_strerror(ret)));
+     return false;
+   }
+--- patchage-1.0.8/src/handle_event.cpp.orig	2022-08-14 00:15:32.000000000 +0200
++++ patchage-1.0.8/src/handle_event.cpp	2022-09-01 21:58:32.040086694 +0200
+@@ -87,7 +87,7 @@ public:
+ 
+     if (!port) {
+       _log.error(
+-        fmt::format("Unable to create view for port \"{}\"", event.id));
++        fmt::format("Unable to create view for port \"{}\"", fmt::streamed(event.id)));
+     }
+   }
+ 
+@@ -104,10 +104,10 @@ public:
+ 
+     if (!port_1) {
+       _log.error(
+-        fmt::format("Unable to find port \"{}\" to connect", event.tail));
++        fmt::format("Unable to find port \"{}\" to connect", fmt::streamed(event.tail)));
+     } else if (!port_2) {
+       _log.error(
+-        fmt::format("Unable to find port \"{}\" to connect", event.head));
++        fmt::format("Unable to find port \"{}\" to connect", fmt::streamed(event.head)));
+     } else {
+       _canvas.make_connection(port_1, port_2);
+     }
+@@ -120,10 +120,10 @@ public:
+ 
+     if (!port_1) {
+       _log.error(
+-        fmt::format("Unable to find port \"{}\" to disconnect", event.tail));
++        fmt::format("Unable to find port \"{}\" to disconnect", fmt::streamed(event.tail)));
+     } else if (!port_2) {
+       _log.error(
+-        fmt::format("Unable to find port \"{}\" to disconnect", event.head));
++        fmt::format("Unable to find port \"{}\" to disconnect", fmt::streamed(event.head)));
+     } else {
+       _canvas.remove_edge_between(port_1, port_2);
+     }
+--- patchage-1.0.8/src/Reactor.cpp.orig	2022-08-14 00:15:32.000000000 +0200
++++ patchage-1.0.8/src/Reactor.cpp	2022-09-01 21:59:27.069788573 +0200
+@@ -87,7 +87,7 @@ Reactor::operator()(const action::Connec
+     if (auto* d = _drivers.driver(action.tail.type())) {
+       d->connect(action.tail, action.head);
+     } else {
+-      _log.error(fmt::format("No driver for {}", action.tail.type()));
++      _log.error(fmt::format("No driver for {}", fmt::streamed(action.tail.type())));
+     }
+   } else {
+     _log.warning("Unable to connect incompatible port");
+@@ -127,7 +127,7 @@ Reactor::operator()(const action::Discon
+     if (auto* d = _drivers.driver(action.tail.type())) {
+       d->disconnect(action.tail, action.head);
+     } else {
+-      _log.error(fmt::format("No driver for {}", action.tail.type()));
++      _log.error(fmt::format("No driver for {}", fmt::streamed(action.tail.type())));
+     }
+   } else {
+     _log.error("Unable to disconnect incompatible ports");
